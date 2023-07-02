@@ -2,7 +2,7 @@
 from argparse import Namespace
 from resource.provision.AWSProvision import AWSProvison
 from resource.provision.connection import RequestLambdaraj
-
+rajesh
 def scrape_resource(args):
     print("scrapein region")
     print(args)
