@@ -4,7 +4,7 @@ from resource.provision.AWSProvision import AWSProvison
 from resource.provision.connection import RequestLambdaraj
 
 def scrape_resource(args):
-    print("scrape region")
+    print("scrapein region")
     print(args)
 
 
