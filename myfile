@@ -1,0 +1,85 @@
+  import argparse
+from argparse import Namespace
+from resource.provision.AWSProvision import AWSProvison
+from resource.provision.connection import RequestLambda
+
+def scrape_resource(args):
+    print("scrape region")
+    print(args)
+
+
+def control_resource(args):
+    print("control resource")
+    print(args)
+
+
+def provision_resource(args):
+    try:
+        print("provision resource")
+        print(args)
+        # RequestLambda(args)
+        AWSProvison(args)
+    except Exception as e:
+        print(f"Error: {str(e)}")
+
+
+def actity_of_resource(args):
+    print("activity of resource")
+    print(args)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(prog='Cloud Management',
+                                     description="An Entrypoint to manage your Cloud Services",
+                                     epilog="The program will scrape your cloud resources and generate reports in PDF "
+                                            "format"
+                                     )
+    subparsers = parser.add_subparsers(title='region or resource', help="command to scrape region")
+
+    region_parser = subparsers.add_parser('region', help="command to region")
+
+    scrape_subparser = region_parser.add_subparsers(title='scrape ', help='baboi')
+    scrape_parser = scrape_subparser.add_parser('scrape', help='scrape')
+    scrape_parser.add_argument('-s', '--scrape', type=str)
+    scrape_parser.set_defaults(func=scrape_resource)
+
+    resource_parser = subparsers.add_parser('resource', help="command to resource")
+
+    resource_subparser = resource_parser.add_subparsers(title='resource activity')
+    activity_parser = resource_subparser.add_parser('activity', help="to check the ec2 or rds events activity")
+    activity_parser.add_argument('-s', '--service', help="mention a service name either ec2 or rds eg. ec2")
+    activity_parser.add_argument('-r', '--region', help="mention the region name eg. ap-south-1")
+    activity_parser.add_argument('-g', '--report', help="mention -g y to generate the pdf report")
+    activity_parser.add_argument('-sd', '--start_date', help="mention -sd 2023-05-15 to generate the pdf report")
+    activity_parser.add_argument('-ed', '--end_date', help="mention -g 2023-05-18 to generate the pdf report")
+
+    activity_parser.set_defaults(func=actity_of_resource)
+
+    provision_parser = resource_subparser.add_parser('provision', help="provides the resource provisional details")
+    provision_parser.add_argument('-s', '--service', type=str, help="mention the names of the services")
+    provision_parser.add_argument('-r', '--region', type=str, help="mention the regions with space seperated for multiple regions")
+    provision_parser.add_argument('-g', '--report', type=str, help="mention 'y' or nothing to generate pdf report for resource provision")
+    provision_parser.add_argument('-i', '--interval', type=int, help="mention to create the pdf for a timeperiod")
+    provision_parser.add_argument('-t', '--type', type=str, help="mention 'regional'-> To generate regional wise report, 'consolidated' -> To generate a consolidated report", default='consolidated')
+    provision_parser.add_argument('--start', help="mention start date like '2023-05-23' to specify the range start point for pdf generation")
+    provision_parser.add_argument('--end', help="mention end date like '2023-05-24' to specify the range start point for pdf generation")
+    provision_parser.set_defaults(func=provision_resource)
+
+    control_parser = resource_subparser.add_parser('control', help="to control a specific service state")
+    control_parser.add_argument('-s', '--service', help='mention service name either ec2 or rds', required=True)
+    control_parser.add_argument('-r', '--region', help='mention the region', required=True)
+    control_parser.add_argument('-i', '--id', help='resource ID', required=True)
+    control_parser.add_argument('-a', '--action', help='action to take upon a service, either start , stop or pause',
+                                required=True)
+    control_parser.set_defaults(func=control_resource)
+
+    args: Namespace = parser.parse_args()
+    print(args)
+    if len(vars(args)) > 0:
+        args.func(args)
+    else:
+        print('For help about this command, try -h')
+
+
+if __name__ == "__main__":
+    parse_args()
